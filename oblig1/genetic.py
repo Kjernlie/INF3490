@@ -201,9 +201,9 @@ def new_population(population, children, outcasts):
 
 # main program....
 
-NoG = 500 # number of generations
-population_size = 50 # size of the population
-NoC = 10 # number of cities
+NoG = 100 # number of generations
+population_size = 150 # size of the population
+NoC = 22 # number of cities
 city_vec = np.arange(NoC)
 TournamentSize = 5
 NoT = population_size/TournamentSize # Number of tournaments 
@@ -232,6 +232,62 @@ for i in range(NoG):
         
     
 
+print "The best tour is ", np.amin(population_avg)
+print "The worst tour is ", np.amax(population_avg)
+print "The mean of the tours is ", np.mean(population_avg)
+print "The standard deviaton of the tours is ", np.std(population_avg)
+
 plt.plot(population_avg)
+plt.xlabel('Generations')
+plt.ylabel('Route length')
 plt.show()
 
+# For a population of 50 and  10 cities
+"""
+The best tour is  11426.4414
+The worst tour is  12125.8744
+The mean of the tours is  11552.81854
+The standard deviaton of the tours is  153.273625958
+
+"""
+
+# For a population of 100 and  10 cities
+"""
+The best tour is  11959.6786
+The worst tour is  12520.5137
+The mean of the tours is  11998.236585
+The standard deviaton of the tours is  77.4575136273
+
+"""
+
+# For a population of 150 and  10 cities
+"""
+The best tour is  11821.8905333
+The worst tour is  12237.2594
+The mean of the tours is  11862.337104
+The standard deviaton of the tours is  56.3314164698
+"""
+
+# For a population of 50 and 22 cities
+"""
+The best tour is  11959.6786
+The worst tour is  12520.5137
+The mean of the tours is  11998.236585
+The standard deviaton of the tours is  77.4575136273
+"""
+
+# For a population of 100 and 22 cities
+"""
+The best tour is  29286.2965
+The worst tour is  29727.1924
+The mean of the tours is  29336.694784
+The standard deviaton of the tours is  49.966073452
+"""
+
+# For a population of 150 and 22 cities
+"""
+The best tour is  29114.0566
+The worst tour is  29638.0686
+The mean of the tours is  29156.7040013
+The standard deviaton of the tours is  64.2216453452
+"""
