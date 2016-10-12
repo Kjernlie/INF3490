@@ -34,30 +34,37 @@ def dist(cities,distance_matrix):
 # -----------------------------------------------------------------------------------------
 # Hill climbing algorithm
 
-def hillclimb(cities, distance_matrix):
+def hillclimb(cities, distance_matrix,neighbours):
     init = cities
     np.random.shuffle(init)
     
     best = dist(init,distance_matrix)
+    best_neighbour = best.copy()
     count = 0
     best_sequence = init.copy()
-    while count < 10:        
-        number1 = np.random.randint(N)
-        number2 = np.random.randint(N)
+    while count < 20:   
+	# Check more neighbours neighbours and see if they are better 
+	for i in range(neighbours):     
+		number1 = np.random.randint(N)
+		number2 = np.random.randint(N)
+		
+		while number1 == number2:
+		    number2 = np.random.randint(N)
+		
+		value1 = init[number1]
+		value2 = init[number2]
+		
+		init[number1] = value2
+		init[number2] = value1
+		
+		temp_neighbour = dist(init,distance_matrix)
+
+		if temp_neighbour < best_neighbour:
+			best_neighbour = temp_neighbour
+ 
         
-        while number1 == number2:
-            number2 = np.random.randint(N)
-        
-        value1 = init[number1]
-        value2 = init[number2]
-        
-        init[number1] = value2
-        init[number2] = value1
-        
-        temp = dist(init,distance_matrix) 
-        
-        if temp < best:
-            best = temp
+        if best_neighbour < best:
+            best = best_neighbour
             best_sequence = init.copy()
             count = 0
         else:
@@ -75,16 +82,22 @@ def index_to_city_name(city_names, city_indices):
 
 # ------------------------------------------------------------------------------------------
 
-N = 24 # Number of cities to include
+N = 10 # Number of cities to include
 NoR = 20 # Number of runs
+NoN = 5 # Number of neighbours to check
 city_vec = np.arange(N)
 best = np.zeros(NoR)
 best_sequence = np.zeros((NoR,N))
 
+start_time = time.time()
+
 for i in range(NoR):
 
-    best[i], best_sequence[i,:] = hillclimb(city_vec,distance)
+    best[i], best_sequence[i,:] = hillclimb(city_vec,distance,NoN)
 
+elapsed_time = time.time() - start_time
+
+print "The elapsed time for ", N, " cities, is ", elapsed_time, " seconds."
 
 print "The best tour is ", np.amin(best)
 print "The worst tour is ", np.amax(best)
@@ -94,16 +107,18 @@ print "The standard deviaton of the tours is ", np.std(best)
 
 # For 10 cities
 """
-The best tour is  8009.86
-The worst tour is  12177.84
-The mean of the tours is  10136.412
-The standard deviaton of the tours is  1148.87912796
+Elapsed time for  10  cities, is  0.0475599765778  seconds.
+The best tour is  7503.1
+The worst tour is  10180.55
+The mean of the tours is  8922.212
+The standard deviaton of the tours is  741.616037971
 """
 
 # For 24 cities
 """
-The best tour is  23152.61
-The worst tour is  31026.39
-The mean of the tours is  28112.458
-The standard deviaton of the tours is  2014.36933821
+Elapsed time for  24  cities, is  0.0690491199493  seconds.
+The best tour is  21784.42
+The worst tour is  27723.41
+The mean of the tours is  25650.3525
+The standard deviaton of the tours is  1471.6979365
 """

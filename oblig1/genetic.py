@@ -55,13 +55,8 @@ def mk_population(size,cities):
 # ----------------------------------------------------------------------------------------------
 
 # Create tournament group
-def mk_tournament(population,size):
-    
-    number_tournaments = population.shape[0]/size
-    #if (float(population.shape[0])/size).is_integer()!=True:
-     #   print "Change population or tournament size!"
-    #print tournament_size
-        
+def mk_tournament(population,size,number_tournaments):
+       
     tournaments = np.zeros((size,number_tournaments))
     population_i = np.arange(population.shape[0])
     np.random.shuffle(population_i)
@@ -91,20 +86,6 @@ def mk_parents(tournaments,population,tournament,distance_matrix):
     for i in range(tournaments.shape[0]):
 	distances[i] = dist(actual_tournament[i],distance_matrix) 
         
-    """
-    # --------------------------------------------------
-    # create the vectors with city indices of the whole tour
-    actual_tournament = np.zeros((tournaments.shape[1],population.shape[1]))
-    for i in range(tournaments.shape[0]): 
-        actual_tournament[i] = population[int(tournaments[i,int(tournament)])]
-
-    
-    
-    # Find the parents
-    distances = np.zeros(tournaments.shape[0]) # len actual_tour
-    for i in range(tournaments.shape[0]): # len actaul_tour
-        distances[i] = dist(actual_tournament[:,i],distance_matrix) # acua[i]
-    """
     # Find the parents
     parents = np.argpartition(distances, 2)[:2]
  
@@ -227,10 +208,10 @@ population_avg = np.zeros((3,NoG))
 
 for m in range(len(population_size)):
 	population = mk_population(population_size[m],city_vec)
-	NoT = population_size[m]/TournamentSize # Number of tournaments 
+	NoT = int(population_size[m]/TournamentSize) # Number of tournaments
 	population_distances = np.zeros(population_size[m])
-	for i in range(NoG):
-	    tournaments = mk_tournament(population,TournamentSize)
+       	for i in range(NoG):
+	    tournaments = mk_tournament(population,TournamentSize,NoT)
 	    parents = np.zeros((NoT, 2))
 	    outcast = np.zeros((NoT, 1))
 	    child = np.zeros((NoT,len(city_vec)))
@@ -247,19 +228,23 @@ for m in range(len(population_size)):
 		    
 		
 	    population_avg[m,i] = np.average(population_distances)
-		
+	
+
+
+	# print out the best result, worst result, mean and standard deviation of the results
+        print "The best tour is ", np.amin(population_avg[m]), " with population size ", population_size[m]
+ 	print "The worst tour is ", np.amax(population_avg[m]), " with population size ", population_size[m]
+	print "The mean of the tours is ", np.mean(population_avg[m]), " with population size ", population_size[m] 
+	print "The standard deviaton of the tours is ", np.std(population_avg[m]), " with population size ", population_size[m]
     
 
-print "The best tour is ", np.amin(population_avg)
-print "The worst tour is ", np.amax(population_avg)
-print "The mean of the tours is ", np.mean(population_avg)
-print "The standard deviaton of the tours is ", np.std(population_avg)
-
-plt.plot(population_avg[0])
-plt.plot(population_avg[1])
-plt.plot(population_avg[2])
+# plot the results
+plt.plot(population_avg[0],label='Size of population is 50')
+plt.plot(population_avg[1],label='Size of population is 100')
+plt.plot(population_avg[2],label='Size of population is 150')
+plt.legend(loc='best')
 plt.xlabel('Generations')
-plt.ylabel('Route length')
+plt.ylabel('Route length [km]')
 plt.show()
 
 
@@ -267,50 +252,48 @@ plt.show()
 # Terminal output
 # For a population of 50 and  10 cities
 """
-The best tour is  11426.4414
-The worst tour is  12125.8744
-The mean of the tours is  11552.81854
-The standard deviaton of the tours is  153.273625958
-
+The best tour is  7791.86  with population size  50
+The worst tour is  11867.341  with population size  50
+The mean of the tours is  8044.692224  with population size  50
+The standard deviaton of the tours is  749.934471998  with population size  50
 """
 
 # For a population of 100 and  10 cities
 """
-The best tour is  11959.6786
-The worst tour is  12520.5137
-The mean of the tours is  11998.236585
-The standard deviaton of the tours is  77.4575136273
-
+The best tour is  7486.31  with population size  100
+The worst tour is  12213.2522  with population size  100
+The mean of the tours is  7808.15731933  with population size  100
+The standard deviaton of the tours is  899.006471627  with population size  100
 """
 
 # For a population of 150 and  10 cities
 """
-The best tour is  11821.8905333
-The worst tour is  12237.2594
-The mean of the tours is  11862.337104
-The standard deviaton of the tours is  56.3314164698
+The best tour is  7486.31  with population size  150
+The worst tour is  12129.9804667  with population size  150
+The mean of the tours is  7840.38100356  with population size  150
+The standard deviaton of the tours is  871.253094014  with population size  150
 """
 
-# For a population of 50 and 22 cities
+# For a population of 50 and 24 cities
 """
-The best tour is  11959.6786
-The worst tour is  12520.5137
-The mean of the tours is  11998.236585
-The standard deviaton of the tours is  77.4575136273
-"""
-
-# For a population of 100 and 22 cities
-"""
-The best tour is  29286.2965
-The worst tour is  29727.1924
-The mean of the tours is  29336.694784
-The standard deviaton of the tours is  49.966073452
+The best tour is  18733.29  with population size  50
+The worst tour is  30841.667  with population size  50
+The mean of the tours is  21193.6299507  with population size  50
+The standard deviaton of the tours is  2794.14361598  with population size  50
 """
 
-# For a population of 150 and 22 cities
+# For a population of 100 and 24 cities
 """
-The best tour is  29114.0566
-The worst tour is  29638.0686
-The mean of the tours is  29156.7040013
-The standard deviaton of the tours is  64.2216453452
+The best tour is  18128.48  with population size  100
+The worst tour is  30562.6222  with population size  100
+The mean of the tours is  20304.82253  with population size  100
+The standard deviaton of the tours is  2755.96455571  with population size  100
+"""
+
+# For a population of 150 and 24 cities
+"""
+The best tour is  17606.39  with population size  150
+The worst tour is  30633.8865333  with population size  150
+The mean of the tours is  19643.4409827  with population size  150
+The standard deviaton of the tours is  2948.51425662  with population size  150
 """
