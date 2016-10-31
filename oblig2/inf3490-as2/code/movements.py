@@ -2,6 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 import mlp
 
 filename = '../data/movements_day1-3.dat'
@@ -37,10 +38,17 @@ testt = target[3::4]
 # Create a size vector
 hidden = 12
 numNeurons = [len(train[1,:]), hidden, len(traint[1,:])]
+iterations = 1000
 
+start_time = time.time()
 
 # Train the network
 net = mlp.mlp(numNeurons)
-net.earlystopping(train, traint, valid, validt)
+net.earlystopping(train, traint, valid, validt,iterations)
 net.confusion(test,testt)
+elapsed_time = time.time() - start_time
+print "The computational time is: ", elapsed_time
+
 plt.show()
+
+
