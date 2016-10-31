@@ -9,6 +9,7 @@ Feel free to use numpy for matrix multiplication and
 """
 
 import numpy as np
+from pandas_ml import ConfusionMatrix
 
 class mlp:
 	def __init__(self, sizes):
@@ -22,74 +23,75 @@ class mlp:
 		self.weights = [np.random.randn(y,x) for x,y in
 				zip(sizes[:-1], sizes[1:])]
 
-	def earlystopping(self, inputs, targets, valid, validtargets):
-		self.train(inputs, targets)
-
-	def train(self, inputs, targets, iterations=1):
-		#data = zip(inputs, targets)
-		#n = len(inputs)
-
-		print np.shape(targets[1,:]) 
-
-		nabla_b = [np.zeros(b.shape) for b in self.biases]
-		nabla_w = [np.zeros(w.shape) for w in self.weights]		
-		delta_nabla_b = [np.zeros(b.shape) for b in self.biases]
-		delta_nabla_w = [np.zeros(w.shape) for w in self.weights]
-		n = 1
-		#print inputs
-		#test = zip(inputs, targets)
-		#print type(inputs)
-		#for x, y in test:
-		#	print "here", x
+	def earlystopping(self, inputs, targets, valid, validtargets, iterations=1000):
+		n = len(valid)
+		squared_err = np.zeros((len(validtargets[0,:]),1))
+		total_sum = []
+		count = 0
+		total_sum.append(200)
 		for i in xrange(iterations):
-			data = zip(inputs, targets)
-			np.random.shuffle(data)
-			#for x, y in data:
-			#input_vec, target_vec = map(list, zip(*data))
-			#print type(input_vec)
-			#for j in xrange(n):
-			for x, y in data:
-				targets_array = np.zeros((len(y),1))
-				targets_array[:,0] += y
-				outputs = self.forward(x)	
-				
-				delta = (targets_array-outputs[-1])*\
-					outputs[-1]*(1-outputs[-1])
-				delta_nabla_b[-1] = delta
-				delta_nabla_w[-1] = np.dot(delta, outputs[-2].transpose())
-				
-				delta = outputs[-2]*(1-outputs[-2])*\
-					np.dot(self.weights[-1].transpose(),delta)
-				delta_nabla_b[-2] = delta
-				delta_nabla_w[-2] = np.dot(delta, outputs[0].transpose())				
-				nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
-				nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
-				
-				print self.weights[1][0], self.biases[0][0]
-				self.weights = [w-(self.eta/n)*nw  for w,nw in
-						zip(self.weights, nabla_w)]
-				self.biases = [b-(self.eta/n)*nb for b,nb in
-						zip(self.biases, nabla_b)]					
-				print self.weights[1][0], self.biases[0][0]
+			print "iteration: ", i
+			self.train(inputs, targets)
+			if i % 20 == 0:
+				squared_err_arr = np.zeros(n)
+				for j in range(n):
+					valid_targets = np.zeros((len(validtargets[0,:]),1))
+					valid_targets[:,0] += validtargets[j]
+					output = self.forward(valid[j,:])
+					squared_err = (output[-1] - valid_targets)**2
+					squared_err_arr[j] = sum(squared_err)
+				count += 1	
+				total_sum.append(sum(squared_err_arr))
+				print "validation iteration: ", count
+				print "And the corrosponding squared error: ", total_sum[count]
+				if total_sum[count] > total_sum[count-1]:
+					break
+							
+
+
+	def train(self, inputs, targets):
+		data = zip(inputs, targets)
+		np.random.shuffle(data)
+		for x, y in data:
+			targets_arr = np.zeros((len(y),1))
+			targets_arr[:,0] += y
+			outputs = self.forward(x)
+			delta_out = (targets_arr-outputs[-1])*\
+				outputs[-1]*(1-outputs[-1])
+			delta_hidden = outputs[-2]*(1-outputs[-2])*\
+				np.dot(self.weights[-1].transpose(),delta_out)
+			
+			self.weights[-1] += self.eta*np.dot(delta_out, outputs[-2].transpose())
+			self.weights[-2] += self.eta*np.dot(delta_hidden, outputs[0].transpose())
+			self.biases[-1] += self.eta*delta_out
+			self.biases[-2] += self.eta*delta_hidden							
+
 	def forward(self, x):
 
-		# Invert the input function, to make dot product possible. Fix this...
 		activation = np.zeros((len(x),1))
 		activation[:,0] += x
 		activations = [activation] # list for storing activations, layer-by-layer
-		zs = [] # list for storing z values, layer-by-layer
 		for b, w in zip(self.biases, self.weights):
 			z = self.beta*np.dot(w, activation) + b
-			zs.append(z)
 			activation = sigmoid(z)
 			activations.append(activation)
 	
 	
 		return activations
 
+	
 
 	def confusion(self, inputs, targets):
-		print('To be implemented')
+		n = len(inputs)
+		output_list = []
+		target_list = []
+		for i in xrange(n):
+			output = self.forward(inputs[i])
+			output_list.append(np.argmax(output[-1]))
+			target_list.append(np.argmax(targets[i]))
+		confusion_matrix = ConfusionMatrix(target_list,output_list)
+		confusion_matrix.print_stats()
+		confusion_matrix.plot(backend='seaborn')
 
 
 
@@ -97,6 +99,3 @@ def sigmoid(z):
 	"""The sigmoid function"""
 	return 1.0/(1.0+np.exp(-z))
 
-def sigmoid_derivative(z):
-	"""The derivative of the sigmoid function"""
-	return sigmoid(z)*(1-sigmoid(z))

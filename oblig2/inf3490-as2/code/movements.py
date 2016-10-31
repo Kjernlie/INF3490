@@ -1,6 +1,7 @@
 # Feel free to use numpy in your MLP if you like to.
 
 import numpy as np
+import matplotlib.pyplot as plt
 import mlp
 
 filename = '../data/movements_day1-3.dat'
@@ -40,7 +41,6 @@ numNeurons = [len(train[1,:]), hidden, len(traint[1,:])]
 
 # Train the network
 net = mlp.mlp(numNeurons)
-#net.train(train,traint,10)
-
 net.earlystopping(train, traint, valid, validt)
-#net.confusion(test,testt)
+net.confusion(test,testt)
+plt.show()
